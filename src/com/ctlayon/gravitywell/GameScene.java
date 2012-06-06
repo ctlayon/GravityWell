@@ -52,7 +52,8 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 				
 				float yDist = well.getY() - mBall.getY();
 				float xDist = well.getX() - mBall.getX();
-				
+				if( yDist  >= 95 && yDist < 100 && mBall.getYSpeed() > -1.5f && mBall.getYSpeed() < 0)
+					mBall.setYSpeed(-2.0f);
 				if( Math.abs( yDist ) < 100 && Math.abs( xDist ) < 100) {
 					if( mBall.getYSpeed() > -5.0f )
 						mBall.setSpeed(mBall.getXSpeed(), mBall.getYSpeed() - 0.4f);
