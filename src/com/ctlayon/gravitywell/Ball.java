@@ -19,6 +19,14 @@ public class Ball extends Sprite{
 		this.ySpeed = ySpeed;
 	}
 	
+	public void setXSpeed(float xSpeed) {
+		this.xSpeed = xSpeed;
+	}
+	
+	public void setYSpeed(float ySpeed) {
+		this.ySpeed = ySpeed;
+	}
+	
 	public float getXSpeed() {
 		return this.xSpeed;
 	}

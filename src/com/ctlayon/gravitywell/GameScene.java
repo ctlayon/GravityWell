@@ -37,19 +37,33 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 				mBall.setPosition(mBall.getX() + mBall.getXSpeed(),mBall.getY() + mBall.getYSpeed());
 				
 				if(mBall.collidesWith(well) && CoolDown.getSharedInstance().checkValidity()) {
-					mBall.bounceVertical();
+					mBall.setYSpeed(-Math.abs(mBall.getYSpeed()));
 				}
-				else if (mBall.getY() >= mCamera.getHeight() - 29) {
+				else if (mBall.getY() >= mCamera.getHeight() - 30) {
 					mBall.bounceVertical();
 				}
 				else if ( mBall.getY() < 0 ) {
 				    mBall.bounceVertical();
 				}
-				if(mBall.getX() < 0 || 
-						mBall.getX() >= mCamera.getWidth() - mBall.getWidth()) {
+				if( mBall.getX() < 0 || 
+						mBall.getX() >= mCamera.getWidth() - mBall.getWidth() ) {
 					mBall.bounceHorizontal();
 				}
 				
+				float yDist = well.getY() - mBall.getY();
+				float xDist = well.getX() - mBall.getX();
+				
+				if( Math.abs( yDist ) < 100 && Math.abs( xDist ) < 100) {
+					if( mBall.getYSpeed() > -5.0f )
+						mBall.setSpeed(mBall.getXSpeed(), mBall.getYSpeed() - 0.4f);
+					if(xDist < 0) {
+						if(mBall.getXSpeed() > -4.0f )
+							mBall.setXSpeed(mBall.getXSpeed() - 0.4f);
+					}
+					else if(xDist > 0)
+						if( mBall.getXSpeed() < 4.0f )
+							mBall.setXSpeed(mBall.getXSpeed() + 0.4f);
+				}
 			}
 
 			@Override
