@@ -5,30 +5,33 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 public class Ball extends Sprite{
-	private int xSpeed;
-	private int ySpeed;
+	private float xSpeed;
+	private float ySpeed;
 	
-	public Ball(int xSpeed, int ySpeed, float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+	public Ball(float xSpeed, float ySpeed, float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
         super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
     }
 	
-	public void setSpeed(int xSpeed, int ySpeed) {
+	public void setSpeed(float xSpeed, float ySpeed) {
 		this.xSpeed = xSpeed;
 		this.ySpeed = ySpeed;
 	}
 	
-	public int getXSpeed() {
+	public float getXSpeed() {
 		return this.xSpeed;
 	}
 	
-	public int getYSpeed() {
+	public float getYSpeed() {
 		return this.ySpeed;
 	}
 	
-	public void bounceWithWell() {
+	public void bounceVertical() {
 		this.ySpeed = -this.ySpeed;
 	}
-
+	
+	public void bounceHorizontal() {
+	    this.xSpeed = -this.xSpeed;
+	}
 }

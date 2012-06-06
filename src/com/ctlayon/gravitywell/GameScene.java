@@ -24,7 +24,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		
 		final Ball mBall;
 		
-		mBall = new Ball(20,20,100,100,activity.mBall,activity.getVertexBufferObjectManager());
+		mBall = new Ball(2,2,100,100,activity.mBall,activity.getVertexBufferObjectManager());
 		this.attachChild(mBall);	
 		
 		activity.setCurrentScene(this);
@@ -32,20 +32,22 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		
 		this.registerUpdateHandler(new IUpdateHandler() {
 			@Override
-			public void onUpdate(float pSecondsElapsed) {
+			public void onUpdate(float pSecondsElapsed) {			    
+                		    
 				mBall.setPosition(mBall.getX() + mBall.getXSpeed(),mBall.getY() + mBall.getYSpeed());
-				if(mBall.collidesWith(well)) {
-					mBall.bounceWithWell();
+				
+				if(mBall.collidesWith(well) && CoolDown.getSharedInstance().checkValidity()) {
+					mBall.bounceVertical();
 				}
-				else if (mBall.getY() >= mCamera.getWidth() - 30) {
-					mBall.bounceWithWell();
+				else if (mBall.getY() >= mCamera.getHeight() - 29) {
+					mBall.bounceVertical();
 				}
-				else if(mBall.getY() < mBall.getHeight()){
-					mBall.bounceWithWell();
+				else if ( mBall.getY() < 0 ) {
+				    mBall.bounceVertical();
 				}
-				else if(mBall.getX() < mBall.getWidth() || 
+				if(mBall.getX() < 0 || 
 						mBall.getX() >= mCamera.getWidth() - mBall.getWidth()) {
-					mBall.bounceWithWell();
+					mBall.bounceHorizontal();
 				}
 				
 			}
