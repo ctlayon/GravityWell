@@ -6,14 +6,27 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 public class Ball extends Sprite{
+	
+	//===MEMBER VARIABLES===//
 	private float xSpeed;
 	private float ySpeed;
+	
+	//===CONSTANTS===//
+	final static float Y_MAX_SPEED = -5.0f;
+	final static float X_MAX_SPEED = 4.0f;
+	final static float Y_MIN_SPEED = -2.0f;
+	final static float Y_ACCELERATION = 0.4f;
+	final static float X_ACCELERATION = 0.4f;
+	
+	//===CONSTRUCTOR===//
 	
 	public Ball(float xSpeed, float ySpeed, float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
         super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
     }
+	
+	//===ACCESS METHODS===//
 	
 	public void setSpeed(float xSpeed, float ySpeed) {
 		this.xSpeed = xSpeed;
@@ -36,6 +49,8 @@ public class Ball extends Sprite{
 		return this.ySpeed;
 	}
 	
+	//===PUBLIC FUNCTIONS FOR MOVEMENT===//
+	
 	public void bounceVertical() {
 		this.ySpeed = -this.ySpeed;
 	}
@@ -45,36 +60,64 @@ public class Ball extends Sprite{
 	}
 	
 	public void move(GravityWell well, Camera mCamera) {
+		
+		//update position based on previous speed
+		
 		this.setPosition(this.getX() + this.getXSpeed(),this.getY() + this.getYSpeed());
 		
-		if(this.collidesWith(well) && CoolDown.getSharedInstance().checkValidity()) {
-			this.setYSpeed(-Math.abs(this.getYSpeed()));
-		}
-		else if (this.getY() >= mCamera.getHeight() - 30) {
+		//check if it collides with a GravityWell
+		//check if it hasn't recently collided With a GravityWell
+		//
+		//Gravity well only pushes up so Update Speed to be negative
+		
+		if( this.collidesWith( well ) && CoolDown.getSharedInstance().checkValidity() ) {
+			this.setYSpeed( -1 * Math.abs( this.getYSpeed() ) );
+		}		
+		
+		//bounced with floor change y direction
+		
+		else if( this.getY() >= mCamera.getHeight() - 30 ) {
 			this.bounceVertical();
 		}
+		
+		//bounced with ceiling change y direction
+		
 		else if ( this.getY() < 0 ) {
 		    this.bounceVertical();
 		}
+		
+		//bounced off a wall change the x direction
+		
 		if( this.getX() < 0 || 
 				this.getX() >= mCamera.getWidth() - this.getWidth() ) {
 			this.bounceHorizontal();
 		}
 		
+		//calculate x and y distance
+		//too expensive IMO to use distance formula
+		
 		float yDist = well.getY() - this.getY();
 		float xDist = well.getX() - this.getX();
-		if( yDist  >= 95 && yDist < 100 && this.getYSpeed() > -1.5f && this.getYSpeed() < 0)
-			this.setYSpeed(-2.0f);
-		if( Math.abs( yDist ) < 100 && Math.abs( xDist ) < 100) {
-			if( this.getYSpeed() > -5.0f )
-				this.setSpeed(this.getXSpeed(), this.getYSpeed() - 0.4f);
+		
+		// If the ball is moving really slow and is out of the GravityWell's Range
+		// set the speed to be the minimum
+		
+		if( yDist  >= 95 && yDist < 100 && this.getYSpeed() > Y_MIN_SPEED && this.getYSpeed() < 0)
+			this.setYSpeed( Y_MIN_SPEED );
+		
+		// Update speed based on 'distance' from the GravityWell
+		// Using Acceleration
+		
+		if( Math.abs( yDist ) < 100 && Math.abs( xDist ) < 100 ) {
+			if( this.getYSpeed() > Y_MAX_SPEED )
+				this.setSpeed( this.getXSpeed(), this.getYSpeed() - Y_ACCELERATION );
 			if(xDist < 0) {
-				if(this.getXSpeed() > -4.0f )
-					this.setXSpeed(this.getXSpeed() - 0.4f);
+				if(this.getXSpeed() > -X_MAX_SPEED )
+					this.setXSpeed(this.getXSpeed() - X_ACCELERATION);
 			}
 			else if(xDist > 0)
-				if( this.getXSpeed() < 4.0f )
-					this.setXSpeed(this.getXSpeed() + 0.4f);
+				if( this.getXSpeed() < X_MAX_SPEED )
+					this.setXSpeed(this.getXSpeed() + X_ACCELERATION);
 		}
 	}
 }

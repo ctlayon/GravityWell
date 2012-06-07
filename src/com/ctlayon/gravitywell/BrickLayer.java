@@ -9,10 +9,19 @@ import org.andengine.entity.modifier.MoveModifier;
 
 public class BrickLayer extends Entity {
 	
+	//===MEMBER VARIABLES===//
 	private LinkedList<Brick> bricks;
+	
+	//===PUBLIC VARIABLES===//
 	public static BrickLayer instance;
 	public int brickCount;
 	
+	//===CONSTANTS===//
+	final static int NUM_ROWS = 6;
+	final static int X_OFFSET = 100;
+	final static int Y_OFFSET = 0;
+	
+	//===CONSTRUCTORS===//
 	public static BrickLayer getSharedInstance() {
 		return instance;
 	}
@@ -24,14 +33,24 @@ public class BrickLayer extends Entity {
 		restart();
 	}
 	
+	//===PUBLIC MEHTODS===//
+	
 	public void restart() {
+		
+		// Clear current layer
+		
 		bricks.clear();
 		clearUpdateHandlers();
 		
+		// Ask BrickPool for a Brick
+		// Create Pattern by Setting finalPos
+		// 
+		// Move the Brick on Screen From a Random Location
+		
 		for (int i = 0; i < brickCount; i++) {
 			Brick b = BrickPool.sharedBrickPool().obtainPoolItem();
-			float finalPosX = (i % 6) * 4 * b.sprite.getWidth();
-			float finalPosY = ((int) (i / 6)) * b.sprite.getHeight() * 2;
+			float finalPosX = (i % NUM_ROWS)* 1.1f * b.sprite.getWidth() + X_OFFSET;
+			float finalPosY = ((int) (i / NUM_ROWS)) * 1.1f * b.sprite.getHeight() + Y_OFFSET;
 
 			Random r = new Random();
 			b.sprite.setPosition(r.nextInt(2) == 0 ? -b.sprite.getWidth() * 3
@@ -50,11 +69,7 @@ public class BrickLayer extends Entity {
 		setPosition(50, 30);		
 	}
 	
-	@Override
-    public void onDetached() {
-		purge();
-		super.onDetached();
-	}
+
 	
 	public static void purgeAndRestart() {
 	    instance.purge();
@@ -78,5 +93,11 @@ public class BrickLayer extends Entity {
 	        BrickPool.sharedBrickPool().recyclePoolItem(b);
 	    }
 	    bricks.clear();
+	}	
+	
+	@Override
+    public void onDetached() {
+		purge();
+		super.onDetached();
 	}
 }

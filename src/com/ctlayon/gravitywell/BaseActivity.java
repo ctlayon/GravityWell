@@ -76,6 +76,17 @@ public class BaseActivity extends SimpleBaseGameActivity {
 		return mCurrentScene;
 	}
 	
+
+	@Override
+	public void onBackPressed() {
+	    if (mCurrentScene instanceof GameScene)
+	        ((GameScene) mCurrentScene).detach();
+	
+	    mCurrentScene = null;
+	    super.onBackPressed();
+	}
+
+	
 	//===PUBLIC FUNCTIONS===//
 	public void setCurrentScene(Scene scene) {
 		mCurrentScene = scene;

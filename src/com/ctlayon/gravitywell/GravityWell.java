@@ -5,14 +5,15 @@ import org.andengine.entity.primitive.Rectangle;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 public class GravityWell extends Rectangle{
+	
+	//===SHARED INSTANCE OF GRAVITYWELL===//
     public static GravityWell instance;
     
+    //===CONTROLLERS SORT OF===//
     Camera mCamera;
     boolean moveable;
     
-    public float power;
-    float previousPos;
-    
+    //===CONSTRUCTORS===//
     public static GravityWell getSharedInstance() {
         if (instance == null)
             instance = new GravityWell(0,0,70,30,
@@ -25,33 +26,18 @@ public class GravityWell extends Rectangle{
 
         mCamera = BaseActivity.getSharedInstance().mCamera;
         this.setPosition(mCamera.getWidth() / 2 - this.getWidth() / 2,
-        		mCamera.getHeight() - this.getHeight() - 50);
-        
+        		mCamera.getHeight() - this.getHeight() - 50);        
         moveable = true;        
-        previousPos=this.getX();
-        power = 0;
 	}
 
+	//===PUBLIC METHOD FOR MOVE===//
     public void move(float x) {
     	if(!moveable)	
     		return;
     	if(x > (mCamera.getWidth() - (int) this.getWidth()))
     		x = (mCamera.getWidth() - (int) this.getWidth());
     	else if( x < 0 )
-    		x = 0;
-    	previousPos = this.getX();
-    	float diffPos = (previousPos - x);
-    	
-    	if( Math.abs(diffPos) >= 10 && Math.abs(diffPos) < 25) {
-    		power = 0.5f;
-    	}
-    	else if( Math.abs(diffPos) >= 25 && Math.abs(diffPos) < 50) {
-    		power = 1.0f;
-    	}
-    	else {
-    		power = 0;
-    	}
-    		
+    		x = 0;    		
     	this.setPosition(x, mCamera.getHeight() - this.getHeight() - 50);    	
     }	
 }
