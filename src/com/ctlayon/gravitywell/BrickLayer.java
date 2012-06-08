@@ -18,8 +18,8 @@ public class BrickLayer extends Entity {
 	
 	//===CONSTANTS===//
 	final static int NUM_ROWS = 6;
-	final static int X_OFFSET = 100;
-	final static int Y_OFFSET = 0;
+	final static int X_OFFSET = 150;
+	final static int Y_OFFSET = 30;
 	
 	//===CONSTRUCTORS===//
 	public static BrickLayer getSharedInstance() {
@@ -66,7 +66,7 @@ public class BrickLayer extends Entity {
 		}
 		
 		setVisible(true);
-		setPosition(50, 30);		
+		setPosition(0, 0);		
 	}
 	
 

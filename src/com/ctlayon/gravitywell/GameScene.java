@@ -76,19 +76,40 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	    	while(bIt.hasNext()){
 	    		Brick b = bIt.next();
 	            if( mBall.collidesWith(b.sprite)) {
+                    Log.v("GameScene",mBall.getX()+" is mBall X");
+                    Log.v("GameScene",mBall.getY() +" is mBall Y");
+                    Log.v("GameScene",mBall.getWidth()+" is mBall Width");
+                    Log.v("GameScene",mBall.getHeight()+" is mBall Height");
+                    Log.v("GameScene",b.sprite.getX()+" is Brick X");
+                    Log.v("GameScene",b.sprite.getY()+" is Brick Y");
+                    Log.v("GameScene",b.sprite.getWidth() +" is Brick Width");
+                    Log.v("GameScene",b.sprite.getHeight() +" is Brick Height");
+                    
+                    final int OFFSET = 14;
+                    
+                    if(mBall.getX() + OFFSET > b.sprite.getX() && mBall.getX() - OFFSET < b.sprite.getX() + b.sprite.getWidth()) {
+                        if(mBall.getY() + mBall.getHeight() - OFFSET < b.sprite.getY()) {
+                            mBall.setYSpeed(-1*Math.abs(mBall.getYSpeed()));
+                        }
+                        else if(mBall.getY() + OFFSET >= b.sprite.getY() +b.sprite.getHeight()) {
+                            mBall.setYSpeed(Math.abs(mBall.getYSpeed()));
+                        }
+                    }
+                    if(mBall.getY() + OFFSET > b.sprite.getY() && mBall.getY() - OFFSET < b.sprite.getY() + b.sprite.getHeight()) {
+                        if(mBall.getX() + mBall.getWidth() - OFFSET <= b.sprite.getX()) {
+                            mBall.setXSpeed(-1*Math.abs(mBall.getXSpeed()));
+                        }
+                        else if(mBall.getX() + OFFSET >= b.sprite.getX() + b.sprite.getWidth() ) {
+                            mBall.setXSpeed(Math.abs(mBall.getXSpeed()));
+                        }
+                    }    
 	            	if( !b.gotHit()) {	            		
 	            		createExplosion(b.sprite.getX(), b.sprite.getY(), b.sprite.getParent(), BaseActivity.getSharedInstance());
-
+	            		
 	            		BrickPool.sharedBrickPool().recyclePoolItem(b);
 	            		bIt.remove();
-	            	}
-	            	
-	            	if(mBall.getY()<= b.sprite.getY() - mBall.getHeight() ||
-	            			mBall.getY() >= b.sprite.getY() + b.sprite.getHeight() + mBall.getHeight())
-	            		mBall.bounceHorizontal();
-	            	if(mBall.getX() >= b.sprite.getX() - mBall.getWidth() ||
-	            			mBall.getX() <= b.sprite.getX() + b.sprite.getWidth() + mBall.getWidth())
-	            		mBall.bounceVertical();
+	            	}            	
+        	
 	            	break;
 	            }
 	    	}

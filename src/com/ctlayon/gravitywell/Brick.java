@@ -29,7 +29,8 @@ public class Brick {
 	
 	public boolean gotHit() {
 	    synchronized (this) {
-	        hp--;
+	        //if(BrickCoolDown.getSharedInstance().checkValidity())
+	            hp--;
 	        if ( hp == 0 )
 	        	return false;
 	        else
