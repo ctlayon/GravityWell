@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.modifier.MoveModifier;
+import org.andengine.util.color.Color;
 
 public class BrickLayer extends Entity {
 	
@@ -49,6 +50,14 @@ public class BrickLayer extends Entity {
 		
 		for (int i = 0; i < brickCount; i++) {
 			Brick b = BrickPool.sharedBrickPool().obtainPoolItem();
+			if( i % 2 == 0) {
+			    b.setColor(Color.RED);
+			    b.setHealth(2);
+			}
+			else {
+			    b.setColor(Color.YELLOW);
+			    b.setHealth(2);
+			}
 			float finalPosX = (i % NUM_ROWS)* 1.1f * b.sprite.getWidth() + X_OFFSET;
 			float finalPosY = ((int) (i / NUM_ROWS)) * 1.1f * b.sprite.getHeight() + Y_OFFSET;
 

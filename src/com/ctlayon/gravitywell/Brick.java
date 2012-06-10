@@ -1,15 +1,17 @@
 package com.ctlayon.gravitywell;
 
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.util.color.Color;
 
 public class Brick {
 	
 	//===PUBLIC VARIABLES===//
 	public Rectangle sprite;
-	public int hp;	
+	public int hp;
+	public Color color;
 
 	//===PROTECTED VARIABLES===//
-	protected final int MAX_HEALTH = 2;
+	protected int MAX_HEALTH = 20;
 	
 	//===CONSTRUCTOR===//
 	public Brick() {
@@ -21,6 +23,15 @@ public class Brick {
 	//===PUBLIC FUNCTIONS===//
 	public void init() {
 	    hp = MAX_HEALTH;
+	}
+	
+	public void setColor(Color color) {
+	    this.color = color;
+	    sprite.setColor(this.color);
+	}
+	
+	public void setHealth(int health) {
+	    this.hp = health;
 	}
 	
 	public void clean() {
