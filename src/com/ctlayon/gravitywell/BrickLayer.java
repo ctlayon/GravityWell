@@ -5,8 +5,19 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import org.andengine.entity.Entity;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.ColorModifier;
+import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
+import org.andengine.entity.modifier.LoopEntityModifier;
+import org.andengine.entity.modifier.LoopEntityModifier.ILoopEntityModifierListener;
 import org.andengine.entity.modifier.MoveModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.util.color.Color;
+import org.andengine.util.modifier.IModifier;
+import org.andengine.util.modifier.LoopModifier;
+
+import android.util.Log;
 
 public class BrickLayer extends Entity {
 	
@@ -70,7 +81,52 @@ public class BrickLayer extends Entity {
 			attachChild(b.sprite);
 			b.sprite.registerEntityModifier(new MoveModifier(2,
 					b.sprite.getX(), finalPosX, b.sprite.getY(), finalPosY));
+			
+			final LoopEntityModifier entityModifer =
+			        new LoopEntityModifier(
+			                new IEntityModifierListener() {
+                                
+                                @Override
+                                public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+                                    Log.v("onModiferStarted", "Modifer Started Successfully");                                    
+                                }
+                                
+                                @Override
+                                public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                                    Log.v("onModiferFinished","Modifer Finished Successfully");
+                                    
+                                }
+                            }, 
+                            10000000,
+                            new ILoopEntityModifierListener() {
 
+                                @Override
+                                public void onLoopStarted(
+                                        LoopModifier<IEntity> pLoopModifier,
+                                        int pLoop, int pLoopCount) {
+                                    // TODO Auto-generated method stub
+                                    
+                                }
+
+                                @Override
+                                public void onLoopFinished(
+                                        LoopModifier<IEntity> pLoopModifier,
+                                        int pLoop, int pLoopCount) {
+                                    // TODO Auto-generated method stub
+                                    
+                                }
+                                
+                            }, 
+                            new SequenceEntityModifier(
+                                    new AlphaModifier(1, .8f, .5f),
+                                    new ColorModifier(1, b.color, Color.BLUE),
+                                    new AlphaModifier(1, .5f, .8f),                                    
+                                    new ColorModifier(1, Color.BLUE, b.color)
+                            )
+                        );
+			                        
+			
+			b.sprite.registerEntityModifier(entityModifer.deepCopy());
 			bricks.add(b);
 		}
 		
