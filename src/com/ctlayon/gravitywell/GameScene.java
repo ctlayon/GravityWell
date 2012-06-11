@@ -7,12 +7,6 @@ import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.IEntityFactory;
-import org.andengine.entity.modifier.AlphaModifier;
-import org.andengine.entity.modifier.ColorModifier;
-import org.andengine.entity.modifier.LoopEntityModifier;
-import org.andengine.entity.modifier.SequenceEntityModifier;
-import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
-import org.andengine.entity.modifier.LoopEntityModifier.ILoopEntityModifierListener;
 import org.andengine.entity.particle.ParticleSystem;
 import org.andengine.entity.particle.SpriteParticleSystem;
 import org.andengine.entity.particle.emitter.PointParticleEmitter;
@@ -25,7 +19,6 @@ import org.andengine.entity.particle.modifier.AlphaParticleModifier;
 import org.andengine.entity.particle.modifier.ColorParticleModifier;
 import org.andengine.entity.particle.modifier.ExpireParticleInitializer;
 import org.andengine.entity.particle.modifier.RotationParticleModifier;
-import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -34,8 +27,6 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
-import org.andengine.util.modifier.IModifier;
-import org.andengine.util.modifier.LoopModifier;
 
 import android.opengl.GLES20;
 import android.util.Log;
@@ -67,7 +58,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		mBall = new Ball(2,2,200,300,activity.mBall,activity.getVertexBufferObjectManager());
 		this.attachChild(mBall);		
 		
-		createTrail();
+		initTrail();
 		
 		activity.setCurrentScene(this);
 		setOnSceneTouchListener(this);
@@ -84,7 +75,10 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	
 	//===PUBLIC FUNCTIONS===//
 	public void moveBall() {
-		mBall.move(well, mCamera);
+		mBall.move(well, mCamera);		
+	}
+	
+	public void moveTrail() {
 		particleEmitter.setCenter(mBall.getX(), mBall.getY());
 	}
 	
@@ -100,16 +94,6 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	    	while(bIt.hasNext()){
 	    		Brick b = bIt.next();
 	            if( mBall.collidesWith(b.sprite)) {
-	            	/*
-                    Log.v("GameScene",mBall.getX()+" is mBall X");
-                    Log.v("GameScene",mBall.getY() +" is mBall Y");
-                    Log.v("GameScene",mBall.getWidth()+" is mBall Width");
-                    Log.v("GameScene",mBall.getHeight()+" is mBall Height");
-                    Log.v("GameScene",b.sprite.getX()+" is Brick X");
-                    Log.v("GameScene",b.sprite.getY()+" is Brick Y");
-                    Log.v("GameScene",b.sprite.getWidth() +" is Brick Width");
-                    Log.v("GameScene",b.sprite.getHeight() +" is Brick Height");
-                    */
 	            	
                     final int OFFSET = 14;
                     
@@ -134,55 +118,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	            		
 	            		BrickPool.sharedBrickPool().recyclePoolItem(b);
 	            		bIt.remove();
-	            	} 
-	            	else {
-	        			final LoopEntityModifier entityModifer =
-	        			        new LoopEntityModifier(
-	        			                new IEntityModifierListener() {
-	                                        
-	                                        @Override
-	                                        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-	                                            Log.v("onModiferStarted", "Modifer Started Successfully");                                    
-	                                        }
-	                                        
-	                                        @Override
-	                                        public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-	                                            Log.v("onModiferFinished","Modifer Finished Successfully");
-	                                            
-	                                        }
-	                                    }, 
-	                                    1,
-	                                    new ILoopEntityModifierListener() {
-
-	                                        @Override
-	                                        public void onLoopStarted(
-	                                                LoopModifier<IEntity> pLoopModifier,
-	                                                int pLoop, int pLoopCount) {
-	                                            // TODO Auto-generated method stub
-	                                            
-	                                        }
-
-	                                        @Override
-	                                        public void onLoopFinished(
-	                                                LoopModifier<IEntity> pLoopModifier,
-	                                                int pLoop, int pLoopCount) {
-	                                            // TODO Auto-generated method stub
-	                                            
-	                                        }
-	                                        
-	                                    }, 
-	                                    new SequenceEntityModifier(
-	                                            new AlphaModifier(.25f, .8f, .5f),
-	                                            new ColorModifier(.25f, b.color, Color.BLUE),
-	                                            new AlphaModifier(.25f, .5f, .8f),                                    
-	                                            new ColorModifier(.25f, Color.BLUE, b.color)
-	                                    )
-	                                );
-	        			                        
-	        			
-	        			b.sprite.registerEntityModifier(entityModifer.deepCopy());
-	            	}
-        	
+	            	}         	
 	            	break;
 	            }
 	    	}
@@ -196,10 +132,10 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		GravityWell.instance = null;
 		BrickPool.instance = null;
 	}
-	
-	private void createTrail() {
+	//===PRIVATE FUNCTIONS===//
+	private void initTrail() {
 		this.particleEmitter = new PointParticleEmitter(mBall.getX(),mBall.getY());
-		this.particleSystem = new SpriteParticleSystem(particleEmitter, 30, 30, 600, this.activity.mParticleTextureRegion, activity.getVertexBufferObjectManager());
+		this.particleSystem = new SpriteParticleSystem(particleEmitter, 30, 30, 300, this.activity.mParticleTextureRegion, activity.getVertexBufferObjectManager());
 		
 		particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(1, 0, 0));
 		particleSystem.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
@@ -209,10 +145,9 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(6));
 
 		//particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0, 5, .8f, .8f));
-		particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(0, 4, .75f, 1, .75f, 1, .75f, 1));
-		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(4, 6, 0, 0, .2f, .5f, 1, 1));
-		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 1, 0, 1));
-		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(5, 6, 1, 0));
+		particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(0, 5, .75f, 1, .75f, 1, .75f, 1));
+		particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(5, 6, 1, 1, 1, .75f, 1, .75f));
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 3, 1, .1f));
 		
 		this.attachChild(particleSystem);
 	}
