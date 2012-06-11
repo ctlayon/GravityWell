@@ -12,6 +12,9 @@ import org.andengine.entity.util.FPSLogger;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.ITexture;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.bitmap.BitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
@@ -32,9 +35,11 @@ public class BaseActivity extends SimpleBaseGameActivity {
 	public Camera mCamera;
 	
 	public ITextureRegion mBall;
+	public ITextureRegion mParticleTextureRegion;
+	private BitmapTextureAtlas mBitmapTextureAtlas;
 
 	public Scene mCurrentScene;
-	public static BaseActivity instance;	
+	public static BaseActivity instance;
 	
 	//===IMPLEMENTED INTERFACE===//
 	@Override
@@ -55,8 +60,11 @@ public class BaseActivity extends SimpleBaseGameActivity {
 		            return getAssets().open("gfx/blueBall.png");
 		        }
 		    });
+			this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.mParticleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, "gfx/blueBall.png", 0, 0);
 			
 			ball.load();
+			this.mBitmapTextureAtlas.load();
 			
 			this.mBall = TextureRegionFactory.extractFromTexture(ball);
 			mFont = FontFactory.create(this.getFontManager(),this.getTextureManager(), 256, 256,Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 32);

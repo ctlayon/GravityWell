@@ -7,19 +7,37 @@ import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.IEntityFactory;
+import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.ColorModifier;
+import org.andengine.entity.modifier.LoopEntityModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
+import org.andengine.entity.modifier.LoopEntityModifier.ILoopEntityModifierListener;
 import org.andengine.entity.particle.ParticleSystem;
+import org.andengine.entity.particle.SpriteParticleSystem;
 import org.andengine.entity.particle.emitter.PointParticleEmitter;
+import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
+import org.andengine.entity.particle.initializer.BlendFunctionParticleInitializer;
+import org.andengine.entity.particle.initializer.ColorParticleInitializer;
+import org.andengine.entity.particle.initializer.RotationParticleInitializer;
 import org.andengine.entity.particle.initializer.VelocityParticleInitializer;
 import org.andengine.entity.particle.modifier.AlphaParticleModifier;
+import org.andengine.entity.particle.modifier.ColorParticleModifier;
+import org.andengine.entity.particle.modifier.ExpireParticleInitializer;
 import org.andengine.entity.particle.modifier.RotationParticleModifier;
+import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
+import org.andengine.util.modifier.IModifier;
+import org.andengine.util.modifier.LoopModifier;
 
+import android.opengl.GLES20;
 import android.util.Log;
 
 public class GameScene extends Scene implements IOnSceneTouchListener {
@@ -31,20 +49,25 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	Camera mCamera;
 	BaseActivity activity;
 	
+	private PointParticleEmitter particleEmitter;
+	private SpriteParticleSystem particleSystem;
+	
 	//===CONSTRUCTOR===/	
 	public GameScene() {
 		
 		setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
-		attachChild(new BrickLayer(24));
+		this.attachChild(new BrickLayer(24));
 		
 		activity = BaseActivity.getSharedInstance();
 		mCamera = activity.mCamera;
 		
 		well = GravityWell.getSharedInstance();
-		attachChild(well);		
+		this.attachChild(well);		
 		
 		mBall = new Ball(2,2,200,300,activity.mBall,activity.getVertexBufferObjectManager());
-		this.attachChild(mBall);	
+		this.attachChild(mBall);		
+		
+		createTrail();
 		
 		activity.setCurrentScene(this);
 		setOnSceneTouchListener(this);
@@ -62,6 +85,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	//===PUBLIC FUNCTIONS===//
 	public void moveBall() {
 		mBall.move(well, mCamera);
+		particleEmitter.setCenter(mBall.getX(), mBall.getY());
 	}
 	
 	public void cleaner() {
@@ -76,6 +100,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	    	while(bIt.hasNext()){
 	    		Brick b = bIt.next();
 	            if( mBall.collidesWith(b.sprite)) {
+	            	/*
                     Log.v("GameScene",mBall.getX()+" is mBall X");
                     Log.v("GameScene",mBall.getY() +" is mBall Y");
                     Log.v("GameScene",mBall.getWidth()+" is mBall Width");
@@ -84,7 +109,8 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
                     Log.v("GameScene",b.sprite.getY()+" is Brick Y");
                     Log.v("GameScene",b.sprite.getWidth() +" is Brick Width");
                     Log.v("GameScene",b.sprite.getHeight() +" is Brick Height");
-                    
+                    */
+	            	
                     final int OFFSET = 14;
                     
                     if(mBall.getX() + OFFSET > b.sprite.getX() && mBall.getX() - OFFSET < b.sprite.getX() + b.sprite.getWidth()) {
@@ -108,7 +134,54 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	            		
 	            		BrickPool.sharedBrickPool().recyclePoolItem(b);
 	            		bIt.remove();
-	            	}            	
+	            	} 
+	            	else {
+	        			final LoopEntityModifier entityModifer =
+	        			        new LoopEntityModifier(
+	        			                new IEntityModifierListener() {
+	                                        
+	                                        @Override
+	                                        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+	                                            Log.v("onModiferStarted", "Modifer Started Successfully");                                    
+	                                        }
+	                                        
+	                                        @Override
+	                                        public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+	                                            Log.v("onModiferFinished","Modifer Finished Successfully");
+	                                            
+	                                        }
+	                                    }, 
+	                                    1,
+	                                    new ILoopEntityModifierListener() {
+
+	                                        @Override
+	                                        public void onLoopStarted(
+	                                                LoopModifier<IEntity> pLoopModifier,
+	                                                int pLoop, int pLoopCount) {
+	                                            // TODO Auto-generated method stub
+	                                            
+	                                        }
+
+	                                        @Override
+	                                        public void onLoopFinished(
+	                                                LoopModifier<IEntity> pLoopModifier,
+	                                                int pLoop, int pLoopCount) {
+	                                            // TODO Auto-generated method stub
+	                                            
+	                                        }
+	                                        
+	                                    }, 
+	                                    new SequenceEntityModifier(
+	                                            new AlphaModifier(.25f, .8f, .5f),
+	                                            new ColorModifier(.25f, b.color, Color.BLUE),
+	                                            new AlphaModifier(.25f, .5f, .8f),                                    
+	                                            new ColorModifier(.25f, Color.BLUE, b.color)
+	                                    )
+	                                );
+	        			                        
+	        			
+	        			b.sprite.registerEntityModifier(entityModifer.deepCopy());
+	            	}
         	
 	            	break;
 	            }
@@ -122,6 +195,26 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		detachChildren();
 		GravityWell.instance = null;
 		BrickPool.instance = null;
+	}
+	
+	private void createTrail() {
+		this.particleEmitter = new PointParticleEmitter(mBall.getX(),mBall.getY());
+		this.particleSystem = new SpriteParticleSystem(particleEmitter, 30, 30, 600, this.activity.mParticleTextureRegion, activity.getVertexBufferObjectManager());
+		
+		particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(1, 0, 0));
+		particleSystem.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
+		particleSystem.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
+		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Sprite>(-1.5f,1.5f,-1.5f,1.5f));
+		particleSystem.addParticleInitializer(new RotationParticleInitializer<Sprite>(0.0f, 360.0f));
+		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(6));
+
+		//particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0, 5, .8f, .8f));
+		particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(0, 4, .75f, 1, .75f, 1, .75f, 1));
+		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(4, 6, 0, 0, .2f, .5f, 1, 1));
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 1, 0, 1));
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(5, 6, 1, 0));
+		
+		this.attachChild(particleSystem);
 	}
 	
 	private void createExplosion(final float posX, final float posY, final IEntity target, final SimpleBaseGameActivity activity) {
