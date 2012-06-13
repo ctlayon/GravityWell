@@ -36,7 +36,9 @@ public class BaseActivity extends SimpleBaseGameActivity {
 	
 	public ITextureRegion mBall;
 	public ITextureRegion mParticleTextureRegion;
+	public ITextureRegion mRibbon;
 	private BitmapTextureAtlas mBitmapTextureAtlas;
+	
 
 	public Scene mCurrentScene;
 	public static BaseActivity instance;
@@ -60,13 +62,22 @@ public class BaseActivity extends SimpleBaseGameActivity {
 		            return getAssets().open("gfx/blueBall.png");
 		        }
 		    });
+			ITexture ribbon = new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {							
+				@Override
+				public InputStream open() throws IOException {
+					return getAssets().open("gfx/trailShip.png");
+				}
+			});
 			this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			this.mParticleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, "gfx/blueBall.png", 0, 0);
 			
 			ball.load();
+			ribbon.load();
 			this.mBitmapTextureAtlas.load();
 			
 			this.mBall = TextureRegionFactory.extractFromTexture(ball);
+			this.mRibbon = TextureRegionFactory.extractFromTexture(ribbon);
+			
 			mFont = FontFactory.create(this.getFontManager(),this.getTextureManager(), 256, 256,Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 32);
 			mFont.load();
 			

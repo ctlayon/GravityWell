@@ -1,6 +1,7 @@
 package com.ctlayon.gravitywell;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -19,6 +20,7 @@ import org.andengine.entity.particle.modifier.AlphaParticleModifier;
 import org.andengine.entity.particle.modifier.ColorParticleModifier;
 import org.andengine.entity.particle.modifier.ExpireParticleInitializer;
 import org.andengine.entity.particle.modifier.RotationParticleModifier;
+import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -95,7 +97,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	    		Brick b = bIt.next();
 	            if( mBall.collidesWith(b.sprite)) {
 	            	
-                    final int OFFSET = 14;
+                    final int OFFSET = 15;
                     
                     if(mBall.getX() + OFFSET > b.sprite.getX() && mBall.getX() - OFFSET < b.sprite.getX() + b.sprite.getWidth()) {
                         if(mBall.getY() + mBall.getHeight() - OFFSET < b.sprite.getY()) {
@@ -135,39 +137,44 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	//===PRIVATE FUNCTIONS===//
 	private void initTrail() {
 		this.particleEmitter = new PointParticleEmitter(mBall.getX(),mBall.getY());
-		this.particleSystem = new SpriteParticleSystem(particleEmitter, 30, 30, 300, this.activity.mParticleTextureRegion, activity.getVertexBufferObjectManager());
+		this.particleSystem = new SpriteParticleSystem(particleEmitter, 18, 22, 600, this.activity.mRibbon, activity.getVertexBufferObjectManager());
 		
-		particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(1, 0, 0));
+		//particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(1, 0, 0));
 		particleSystem.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
 		particleSystem.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
-		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Sprite>(-1.5f,1.5f,-1.5f,1.5f));
-		particleSystem.addParticleInitializer(new RotationParticleInitializer<Sprite>(0.0f, 360.0f));
-		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(6));
-
-		//particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0, 5, .8f, .8f));
-		particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(0, 5, .75f, 1, .75f, 1, .75f, 1));
-		particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(5, 6, 1, 1, 1, .75f, 1, .75f));
-		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 3, 1, .1f));
+		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Sprite>(0));
 		
+		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(4));
+
+		particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0, 4, 1, .5f));
+		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(0, 5, .75f, 1, .75f, 1, .75f, 1));
+		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(5, 6, 1, 1, 1, .75f, 1, .75f));
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 4, 1, 0));
 		this.attachChild(particleSystem);
 	}
 	
 	private void createExplosion(final float posX, final float posY, final IEntity target, final SimpleBaseGameActivity activity) {
 		int mNumPart = 15;
-		int mTimePart = 2;
+		int mTimePart = 5;
 
 		PointParticleEmitter particleEmitter = new PointParticleEmitter(posX,posY);
 		IEntityFactory<Rectangle> recFact = new IEntityFactory<Rectangle>() {
 		    @Override
 		    public Rectangle create(float pX, float pY) {
 		        Rectangle rect = new Rectangle(posX, posY, 10, 10, activity.getVertexBufferObjectManager());
-		        rect.setColor(Color.GREEN);
+		        final Random item = new Random();
+		        if(item.nextInt()%2==0){
+		        	rect.setColor(Color.BLUE);
+		        }		        
+		        else
+		        	rect.setColor(Color.RED);
+		        
 		        return rect;
 		    }
 		};
 		final ParticleSystem<Rectangle> particleSystem = new ParticleSystem<Rectangle>( recFact, particleEmitter, 500, 500, mNumPart);
 		
-		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Rectangle>(-50, 50, -50, 50));
+		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Rectangle>(-25, 25, -25, -50));
 
 		particleSystem.addParticleModifier(new AlphaParticleModifier<Rectangle>(0,0.6f * mTimePart, 1, 0));
 		particleSystem.addParticleModifier(new RotationParticleModifier<Rectangle>(0, mTimePart, 0, 360));
