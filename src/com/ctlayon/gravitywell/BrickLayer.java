@@ -19,7 +19,6 @@ public class BrickLayer extends Entity {
 	public static BrickLayer instance;	
 	
 	//===CONSTANTS===//
-	final static int NUM_ROWS = 6;
 	final static int X_OFFSET = 150;
 	final static int Y_OFFSET = 30;
 	
@@ -55,8 +54,21 @@ public class BrickLayer extends Entity {
 		setPosition(0, 0);		
 	}
 	
+	/*
+	 * TO MANUALLY CREATE LEVELS:
+	 * I open up gimp, create a canvas of appropriate size
+	 * Create a rectangle with the appropriate dimensions
+	 * Position them accordingly, record their position
+	 * then create X number of bricks and position each brick
+	 * at position (X,Y)
+	 * 
+	 * MAKE SURE YOU ADD YOUR NEW LEVEL TO THE RESTART METHOD
+	 */
+	
+	
 	public void level0() {
-		brickCount = 1;
+		brickCount = 24;
+		final int NUM_ROWS = 8;
 		for (int i = 0; i < brickCount; i++) {
 			Brick b = BrickPool.sharedBrickPool().obtainPoolItem();
 			if( i % 2 == 0 &&(int) (i /NUM_ROWS) % 2 == 0) {
@@ -94,6 +106,7 @@ public class BrickLayer extends Entity {
 	
 	public void level1() {
 		brickCount=24;
+		final int NUM_ROWS = 6;
 		for (int i = 0; i < brickCount; i++) {
 			Brick b = BrickPool.sharedBrickPool().obtainPoolItem();
 			if( i % 2 == 0 &&(int) (i /NUM_ROWS) % 2 == 0) {

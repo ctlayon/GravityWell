@@ -91,7 +91,7 @@ public class BaseActivity extends SimpleBaseGameActivity {
 	@Override
 	protected Scene onCreateScene() {
 		mEngine.registerUpdateHandler(new FPSLogger());
-		mCurrentScene = new GameScene();
+		mCurrentScene = new MainMenuScene();
 		return mCurrentScene;
 	}
 	

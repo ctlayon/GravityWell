@@ -13,11 +13,8 @@ import org.andengine.entity.particle.SpriteParticleSystem;
 import org.andengine.entity.particle.emitter.PointParticleEmitter;
 import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.BlendFunctionParticleInitializer;
-import org.andengine.entity.particle.initializer.ColorParticleInitializer;
-import org.andengine.entity.particle.initializer.RotationParticleInitializer;
 import org.andengine.entity.particle.initializer.VelocityParticleInitializer;
 import org.andengine.entity.particle.modifier.AlphaParticleModifier;
-import org.andengine.entity.particle.modifier.ColorParticleModifier;
 import org.andengine.entity.particle.modifier.ExpireParticleInitializer;
 import org.andengine.entity.particle.modifier.RotationParticleModifier;
 import org.andengine.entity.particle.modifier.ScaleParticleModifier;
@@ -47,12 +44,12 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	
 	
 	//===CONSTANTS===//
-	final int OFFSET = 15;
+	final static int OFFSET = 15;
 	
 	//===CONSTRUCTOR===/	
 	public GameScene() {
 		
-		setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
+		setBackground(new Background(.05f,.1f, .25f));
 		this.attachChild(new BrickLayer());
 		
 		activity = BaseActivity.getSharedInstance();
@@ -91,7 +88,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	public void cleaner() {
 	    synchronized (this) {	    	
 	    	// if all Bricks are Hit	  	
-	    	gameOver();
+	    	levelOver();
 
 	    	Iterator<Brick> bIt = BrickLayer.getIterator();
 	    	while(bIt.hasNext()){
@@ -161,7 +158,7 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
     	}  
 	}
 	
-	private void gameOver() {
+	private void levelOver() {
     	if (BrickLayer.isEmpty()) {
     		//Move To the next Layer of Bricks
     		BrickLayer.nextLevel();

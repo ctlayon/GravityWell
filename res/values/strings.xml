@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, BaseActivity!</string>
     <string name="app_name">GravityWell</string>
+    <string name="start">Play the Demo!!!</string>
 
 </resources>
