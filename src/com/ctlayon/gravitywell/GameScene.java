@@ -45,11 +45,15 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	private PointParticleEmitter particleEmitter;
 	private SpriteParticleSystem particleSystem;
 	
+	
+	//===CONSTANTS===//
+	final int OFFSET = 15;
+	
 	//===CONSTRUCTOR===/	
 	public GameScene() {
 		
 		setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
-		this.attachChild(new BrickLayer(24));
+		this.attachChild(new BrickLayer());
 		
 		activity = BaseActivity.getSharedInstance();
 		mCamera = activity.mCamera;
@@ -86,47 +90,21 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 	
 	public void cleaner() {
 	    synchronized (this) {	    	
-	    	// if all Bricks are Hit	    	
-	    	if (BrickLayer.isEmpty()) {
-	    		this.detach();
-	    	    activity.setCurrentScene(new GameScene());
-	    	}
+	    	// if all Bricks are Hit	  	
+	    	gameOver();
 
 	    	Iterator<Brick> bIt = BrickLayer.getIterator();
 	    	while(bIt.hasNext()){
 	    		Brick b = bIt.next();
 	            if( mBall.collidesWith(b.sprite)) {
-	            	
-                    final int OFFSET = 15;
-                    
-                    if(mBall.getX() + OFFSET > b.sprite.getX() && mBall.getX() - OFFSET < b.sprite.getX() + b.sprite.getWidth()) {
-                        if(mBall.getY() + mBall.getHeight() - OFFSET < b.sprite.getY()) {
-                            mBall.setYSpeed(-1*Math.abs(mBall.getYSpeed()));
-                        }
-                        else if(mBall.getY() + OFFSET >= b.sprite.getY() +b.sprite.getHeight()) {
-                            mBall.setYSpeed(Math.abs(mBall.getYSpeed()));
-                        }
-                    }
-                    if(mBall.getY() + OFFSET > b.sprite.getY() && mBall.getY() - OFFSET < b.sprite.getY() + b.sprite.getHeight()) {
-                        if(mBall.getX() + mBall.getWidth() - OFFSET <= b.sprite.getX()) {
-                            mBall.setXSpeed(-1*Math.abs(mBall.getXSpeed()));
-                        }
-                        else if(mBall.getX() + OFFSET >= b.sprite.getX() + b.sprite.getWidth() ) {
-                            mBall.setXSpeed(Math.abs(mBall.getXSpeed()));
-                        }
-                    }    
-	            	if( !b.gotHit()) {	            		
-	            		createExplosion(b.sprite.getX(), b.sprite.getY(), b.sprite.getParent(), BaseActivity.getSharedInstance());
-	            		
-	            		BrickPool.sharedBrickPool().recyclePoolItem(b);
-	            		bIt.remove();
-	            	}         	
+	            	checkCollisionType(b);                    
+	            	checkRemove(b, bIt);       	
 	            	break;
 	            }
 	    	}
 	    }
 	}
-	
+		
 	public void detach() {
 		Log.v("GravityWell","GameScene onDetach()");
 		clearUpdateHandlers();
@@ -134,23 +112,62 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		GravityWell.instance = null;
 		BrickPool.instance = null;
 	}
+	
+	
 	//===PRIVATE FUNCTIONS===//
 	private void initTrail() {
 		this.particleEmitter = new PointParticleEmitter(mBall.getX(),mBall.getY());
-		this.particleSystem = new SpriteParticleSystem(particleEmitter, 18, 22, 600, this.activity.mRibbon, activity.getVertexBufferObjectManager());
-		
+		this.particleSystem = new SpriteParticleSystem(particleEmitter, 100, 100, 600, this.activity.mRibbon, activity.getVertexBufferObjectManager());
+
 		//particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(1, 0, 0));
 		particleSystem.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
 		particleSystem.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
 		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Sprite>(0));
-		
-		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(4));
 
-		particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0, 4, 1, .5f));
+		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(2));
+
+		particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0, 2, 1, .5f));
 		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(0, 5, .75f, 1, .75f, 1, .75f, 1));
 		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(5, 6, 1, 1, 1, .75f, 1, .75f));
-		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 4, 1, 0));
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 2, 1, 0));
 		this.attachChild(particleSystem);
+	}
+	
+	private void checkCollisionType(Brick b) {
+        if(mBall.getX() + OFFSET > b.sprite.getX() && mBall.getX() - OFFSET < b.sprite.getX() + b.sprite.getWidth()) {
+            if(mBall.getY() + mBall.getHeight() - OFFSET < b.sprite.getY()) {
+                mBall.setYSpeed(-1*Math.abs(mBall.getYSpeed()));
+            }
+            else if(mBall.getY() + OFFSET >= b.sprite.getY() +b.sprite.getHeight()) {
+                mBall.setYSpeed(Math.abs(mBall.getYSpeed()));
+            }
+        }
+        if(mBall.getY() + OFFSET > b.sprite.getY() && mBall.getY() - OFFSET < b.sprite.getY() + b.sprite.getHeight()) {
+            if(mBall.getX() + mBall.getWidth() - OFFSET <= b.sprite.getX()) {
+                mBall.setXSpeed(-1*Math.abs(mBall.getXSpeed()));
+            }
+            else if(mBall.getX() + OFFSET >= b.sprite.getX() + b.sprite.getWidth() ) {
+                mBall.setXSpeed(Math.abs(mBall.getXSpeed()));
+            }
+        }    
+	}
+	
+	private void checkRemove(Brick b, Iterator<Brick> bIt) {
+    	if( !b.gotHit()) {	            		
+    		createExplosion(b.sprite.getX(), b.sprite.getY(), b.sprite.getParent(), BaseActivity.getSharedInstance());
+    		
+    		BrickPool.sharedBrickPool().recyclePoolItem(b);
+    		bIt.remove();
+    	}  
+	}
+	
+	private void gameOver() {
+    	if (BrickLayer.isEmpty()) {
+    		//Move To the next Layer of Bricks
+    		BrickLayer.nextLevel();
+    		BrickLayer.purgeAndRestart();
+    		mBall.setPosition(200, 300);
+    	}
 	}
 	
 	private void createExplosion(final float posX, final float posY, final IEntity target, final SimpleBaseGameActivity activity) {

@@ -12,10 +12,11 @@ public class BrickLayer extends Entity {
 	
 	//===MEMBER VARIABLES===//
 	private LinkedList<Brick> bricks;
+	private int level;
+	private int brickCount;
 	
 	//===PUBLIC VARIABLES===//
-	public static BrickLayer instance;
-	public int brickCount;
+	public static BrickLayer instance;	
 	
 	//===CONSTANTS===//
 	final static int NUM_ROWS = 6;
@@ -27,10 +28,10 @@ public class BrickLayer extends Entity {
 		return instance;
 	}
 	
-	public BrickLayer(int x) {
+	public BrickLayer() {
 		bricks = new LinkedList<Brick>();
 		instance = this;
-		brickCount = x;
+		level = 0;
 		restart();
 	}
 	
@@ -43,11 +44,19 @@ public class BrickLayer extends Entity {
 		bricks.clear();
 		clearUpdateHandlers();
 		
-		// Ask BrickPool for a Brick
-		// Create Pattern by Setting finalPos
-		// 
-		// Move the Brick on Screen From a Random Location
+		//Select The Level
 		
+		if(level==1)
+			level1();
+		else
+			level0();
+		
+		setVisible(true);
+		setPosition(0, 0);		
+	}
+	
+	public void level0() {
+		brickCount = 1;
 		for (int i = 0; i < brickCount; i++) {
 			Brick b = BrickPool.sharedBrickPool().obtainPoolItem();
 			if( i % 2 == 0 &&(int) (i /NUM_ROWS) % 2 == 0) {
@@ -81,12 +90,44 @@ public class BrickLayer extends Entity {
 			
 			bricks.add(b);
 		}
-		
-		setVisible(true);
-		setPosition(0, 0);		
 	}
 	
+	public void level1() {
+		brickCount=24;
+		for (int i = 0; i < brickCount; i++) {
+			Brick b = BrickPool.sharedBrickPool().obtainPoolItem();
+			if( i % 2 == 0 &&(int) (i /NUM_ROWS) % 2 == 0) {
+			    b.setColor(Color.RED);
+			    b.setHealth(2);
+			}
+			else if( i % 2 == 0 && (int) (i / NUM_ROWS) % 2 == 1) {
+				b.setColor(Color.BLUE);
+			    b.setHealth(2);
+			}
+			else if( i % 2 == 1 && (int) (i/ NUM_ROWS) % 2 == 1) {
+				b.setColor(Color.RED);
+			    b.setHealth(2);
+			}
+			else {
+			    b.setColor(Color.BLUE);
+			    b.setHealth(2);
+			}
+			float finalPosX = (i % NUM_ROWS)* 1.1f * b.sprite.getWidth() + X_OFFSET;
+			float finalPosY = ((int) (i / NUM_ROWS)) * 1.1f * b.sprite.getHeight() + Y_OFFSET;
 
+			Random r = new Random();
+			b.sprite.setPosition(r.nextInt(2) == 0 ? -b.sprite.getWidth() * 3
+					: BaseActivity.CAMERA_WIDTH + b.sprite.getWidth() * 3,
+					(r.nextInt(5) + 1) * b.sprite.getHeight());
+			b.sprite.setVisible(true);
+
+			attachChild(b.sprite);
+			b.sprite.registerEntityModifier(new MoveModifier(2,
+					b.sprite.getX(), finalPosX, b.sprite.getY(), finalPosY));
+			
+			bricks.add(b);
+		}
+	}
 	
 	public static void purgeAndRestart() {
 	    instance.purge();
@@ -98,6 +139,10 @@ public class BrickLayer extends Entity {
 			return true;
 		}
 		return false;
+	}
+	
+	public static void nextLevel() {
+		instance.level++;
 	}
 	
 	public static Iterator<Brick> getIterator() {
