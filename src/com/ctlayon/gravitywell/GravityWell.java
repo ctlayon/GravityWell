@@ -2,42 +2,59 @@ package com.ctlayon.gravitywell;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.Rectangle;
-import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.entity.shape.IShape;
 
-public class GravityWell extends Rectangle{
-	
-	//===SHARED INSTANCE OF GRAVITYWELL===//
-    public static GravityWell instance;
-    
-    //===CONTROLLERS SORT OF===//
-    Camera mCamera;
-    boolean moveable;
-    
-    //===CONSTRUCTORS===//
-    public static GravityWell getSharedInstance() {
-        if (instance == null)
-            instance = new GravityWell(0,0,70,30,
-            		BaseActivity.getSharedInstance().getVertexBufferObjectManager());
-        return instance;
-    }
+public class GravityWell {
 
-	public GravityWell(float pX, float pY, float pWidth, float pHeight, VertexBufferObjectManager pVertexBufferObjectManager) {
-		super(pX, pY,pWidth,pHeight,pVertexBufferObjectManager);
+	// ===SHARED INSTANCE OF GRAVITYWELL===//
+	public static GravityWell instance;
 
-        mCamera = BaseActivity.getSharedInstance().mCamera;
-        this.setPosition(mCamera.getWidth() / 2 - this.getWidth() / 2,
-        		mCamera.getHeight() - this.getHeight() - 50);        
-        moveable = true;        
+	// ===SPRITE FOR THE IMAGE===//
+	private Rectangle sprite;
+
+	// ===CONTROLLERS SORT OF===//
+	Camera mCamera;
+	boolean moveable;
+
+	// ===CONSTRUCTORS===//
+	public static GravityWell getSharedInstance() {
+		if (instance == null)
+			instance = new GravityWell();
+		return instance;
 	}
 
-	//===PUBLIC METHOD FOR MOVE===//
-    public void move(float x) {
-    	if(!moveable)	
-    		return;
-    	if(x > (mCamera.getWidth() - (int) this.getWidth()))
-    		x = (mCamera.getWidth() - (int) this.getWidth());
-    	else if( x < 0 )
-    		x = 0;    		
-    	this.setPosition(x, mCamera.getHeight() - this.getHeight() - 50);    	
-    }	
+	public GravityWell() {
+
+		sprite = new Rectangle(0, 0, 70, 30, BaseActivity.getSharedInstance()
+				.getVertexBufferObjectManager());
+
+		mCamera = BaseActivity.getSharedInstance().mCamera;
+		sprite.setPosition(mCamera.getWidth() / 2 - sprite.getWidth() / 2,
+				mCamera.getHeight() - sprite.getHeight() - 50);
+		moveable = true;
+
+	}
+
+	// ===PUBLIC METHOD FOR MOVE===//
+	public void move(float x) {
+		if (!moveable)
+			return;
+		if (x > (mCamera.getWidth() - (int) sprite.getWidth()))
+			x = (mCamera.getWidth() - (int) sprite.getWidth());
+		else if (x < 0)
+			x = 0;
+		sprite.setPosition(x, mCamera.getHeight() - sprite.getHeight() - 50);
+	}
+
+	public float getY() {
+		return sprite.getY();
+	}
+
+	public float getX() {
+		return sprite.getX();
+	}
+
+	public IShape getSprite() {
+		return sprite;
+	}
 }

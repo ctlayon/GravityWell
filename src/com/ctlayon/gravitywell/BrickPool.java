@@ -27,8 +27,8 @@ public class BrickPool extends GenericPool<Brick> {
 	}
 	/** Called when a projectile is sent to the pool */
 	protected void onHandleRecycleItem(final Brick b) {
-	    b.sprite.setVisible(false);
-	    b.sprite.detachSelf();
+	    b.setVisible(false);
+	    b.detachSelf();
 	    b.clean();
 	}
 
