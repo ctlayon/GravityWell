@@ -31,179 +31,202 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 public class GameScene extends Scene implements IOnSceneTouchListener {
-	
-	//===PUBLIC VARIABLES===//	
+
+	// ===PUBLIC VARIABLES===//
 	public GravityWell well;
 	public Ball mBall;
-	
+
 	Camera mCamera;
 	BaseActivity activity;
-	
+
 	private PointParticleEmitter particleEmitter;
 	private SpriteParticleSystem particleSystem;
-	
-	
-	//===CONSTANTS===//
+
+	// ===CONSTANTS===//
 	final static int OFFSET = 15;
-	
-	//===CONSTRUCTOR===/	
+
+	// ===CONSTRUCTOR===/
 	public GameScene() {
-		
-		setBackground(new Background(.05f,.1f, .25f));
+
+		setBackground(new Background(.05f, .1f, .25f));
 		this.attachChild(new BrickLayer());
-		
+
 		activity = BaseActivity.getSharedInstance();
 		mCamera = activity.mCamera;
-		
+
 		well = GravityWell.getSharedInstance();
-		this.attachChild(well);		
-		
-		mBall = new Ball(2,2,200,300,activity.mBall,activity.getVertexBufferObjectManager());
-		this.attachChild(mBall);		
-		
+		this.attachChild(well.getSprite());
+
+		mBall = new Ball(2, 2, 200, 300, activity.mBall,
+				activity.getVertexBufferObjectManager());
+		this.attachChild(mBall.getSprite());
+
 		initTrail();
-		
+
 		activity.setCurrentScene(this);
 		setOnSceneTouchListener(this);
-		
+
 		registerUpdateHandler(new GameLoopUpdateHandler());
 	}
 
-	//===IMPLEMENTED INTERFACE===//
+	// ===IMPLEMENTED INTERFACE===//
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		well.move(pSceneTouchEvent.getX());
-	    return true;
+		return true;
 	}
-	
-	//===PUBLIC FUNCTIONS===//
+
+	// ===PUBLIC FUNCTIONS===//
 	public void moveBall() {
-		mBall.move(well, mCamera);		
+		mBall.move(well, mCamera);
 	}
-	
+
 	public void moveTrail() {
 		particleEmitter.setCenter(mBall.getX(), mBall.getY());
 	}
-	
-	public void cleaner() {
-	    synchronized (this) {	    	
-	    	// if all Bricks are Hit	  	
-	    	levelOver();
 
-	    	Iterator<Brick> bIt = BrickLayer.getIterator();
-	    	while(bIt.hasNext()){
-	    		Brick b = bIt.next();
-	            if( mBall.collidesWith(b.sprite)) {
-	            	checkCollisionType(b);                    
-	            	checkRemove(b, bIt);       	
-	            	break;
-	            }
-	    	}
-	    }
+	public void cleaner() {
+		synchronized (this) {
+			// if all Bricks are Hit
+			levelOver();
+
+			Iterator<Brick> bIt = BrickLayer.getIterator();
+			while (bIt.hasNext()) {
+				Brick b = bIt.next();
+				if (mBall.collidesWith(b.getSprite())) {
+					checkCollisionType(b);
+					checkRemove(b, bIt);
+					break;
+				}
+			}
+		}
 	}
-		
+
 	public void detach() {
-		Log.v("GravityWell","GameScene onDetach()");
+		Log.v("GravityWell", "GameScene onDetach()");
 		clearUpdateHandlers();
 		detachChildren();
 		GravityWell.instance = null;
 		BrickPool.instance = null;
 	}
-	
-	
-	//===PRIVATE FUNCTIONS===//
+
+	// ===PRIVATE FUNCTIONS===//
 	private void initTrail() {
-		this.particleEmitter = new PointParticleEmitter(mBall.getX(),mBall.getY());
-		this.particleSystem = new SpriteParticleSystem(particleEmitter, 100, 100, 600, this.activity.mRibbon, activity.getVertexBufferObjectManager());
+		this.particleEmitter = new PointParticleEmitter(mBall.getX(),
+				mBall.getY());
+		this.particleSystem = new SpriteParticleSystem(particleEmitter, 100,
+				100, 600, this.activity.mRibbon,
+				activity.getVertexBufferObjectManager());
 
-		//particleSystem.addParticleInitializer(new ColorParticleInitializer<Sprite>(1, 0, 0));
-		particleSystem.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
-		particleSystem.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
-		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Sprite>(0));
+		// particleSystem.addParticleInitializer(new
+		// ColorParticleInitializer<Sprite>(1, 0, 0));
+		particleSystem
+				.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
+		particleSystem
+				.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(
+						GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
+		particleSystem
+				.addParticleInitializer(new VelocityParticleInitializer<Sprite>(
+						0));
 
-		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(2));
+		particleSystem
+				.addParticleInitializer(new ExpireParticleInitializer<Sprite>(2));
 
-		particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0, 2, 1, .5f));
-		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(0, 5, .75f, 1, .75f, 1, .75f, 1));
-		//particleSystem.addParticleModifier(new ColorParticleModifier<Sprite>(5, 6, 1, 1, 1, .75f, 1, .75f));
-		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0, 2, 1, 0));
+		particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0,
+				2, 1, .5f));
+		// particleSystem.addParticleModifier(new
+		// ColorParticleModifier<Sprite>(0, 5, .75f, 1, .75f, 1, .75f, 1));
+		// particleSystem.addParticleModifier(new
+		// ColorParticleModifier<Sprite>(5, 6, 1, 1, 1, .75f, 1, .75f));
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0,
+				2, 1, 0));
 		this.attachChild(particleSystem);
 	}
-	
+
 	private void checkCollisionType(Brick b) {
-        if(mBall.getX() + OFFSET > b.sprite.getX() && mBall.getX() - OFFSET < b.sprite.getX() + b.sprite.getWidth()) {
-            if(mBall.getY() + mBall.getHeight() - OFFSET < b.sprite.getY()) {
-                mBall.setYSpeed(-1*Math.abs(mBall.getYSpeed()));
-            }
-            else if(mBall.getY() + OFFSET >= b.sprite.getY() +b.sprite.getHeight()) {
-                mBall.setYSpeed(Math.abs(mBall.getYSpeed()));
-            }
-        }
-        if(mBall.getY() + OFFSET > b.sprite.getY() && mBall.getY() - OFFSET < b.sprite.getY() + b.sprite.getHeight()) {
-            if(mBall.getX() + mBall.getWidth() - OFFSET <= b.sprite.getX()) {
-                mBall.setXSpeed(-1*Math.abs(mBall.getXSpeed()));
-            }
-            else if(mBall.getX() + OFFSET >= b.sprite.getX() + b.sprite.getWidth() ) {
-                mBall.setXSpeed(Math.abs(mBall.getXSpeed()));
-            }
-        }    
+		if (mBall.getX() + OFFSET > b.getX()
+				&& mBall.getX() - OFFSET < b.getX() + b.getWidth()) {
+			if (mBall.getY() + mBall.getHeight() - OFFSET < b.getY()) {
+				mBall.setYSpeed(-1 * Math.abs(mBall.getYSpeed()));
+			} else if (mBall.getY() + OFFSET >= b.getY() + b.getHeight()) {
+				mBall.setYSpeed(Math.abs(mBall.getYSpeed()));
+			}
+		}
+		if (mBall.getY() + OFFSET > b.getY()
+				&& mBall.getY() - OFFSET < b.getY() + b.getHeight()) {
+			if (mBall.getX() + mBall.getWidth() - OFFSET <= b.getX()) {
+				mBall.setXSpeed(-1 * Math.abs(mBall.getXSpeed()));
+			} else if (mBall.getX() + OFFSET >= b.getX() + b.getWidth()) {
+				mBall.setXSpeed(Math.abs(mBall.getXSpeed()));
+			}
+		}
 	}
-	
+
 	private void checkRemove(Brick b, Iterator<Brick> bIt) {
-    	if( !b.gotHit()) {	            		
-    		createExplosion(b.sprite.getX(), b.sprite.getY(), b.sprite.getParent(), BaseActivity.getSharedInstance());
-    		
-    		BrickPool.sharedBrickPool().recyclePoolItem(b);
-    		bIt.remove();
-    	}  
+		if (!b.gotHit()) {
+			createExplosion(b.getX(), b.getY(), b.getSprite().getParent(),
+					BaseActivity.getSharedInstance());
+
+			BrickPool.sharedBrickPool().recyclePoolItem(b);
+			bIt.remove();
+		}
 	}
-	
+
 	private void levelOver() {
-    	if (BrickLayer.isEmpty()) {
-    		//Move To the next Layer of Bricks
-    		BrickLayer.nextLevel();
-    		BrickLayer.purgeAndRestart();
-    		mBall.setPosition(200, 300);
-    	}
+		if (BrickLayer.isEmpty()) {
+			// Move To the next Layer of Bricks
+			BrickLayer.nextLevel();
+			BrickLayer.purgeAndRestart();
+			mBall.setPosition(200, 300);
+		}
 	}
-	
-	private void createExplosion(final float posX, final float posY, final IEntity target, final SimpleBaseGameActivity activity) {
+
+	private void createExplosion(final float posX, final float posY,
+			final IEntity target, final SimpleBaseGameActivity activity) {
 		int mNumPart = 15;
 		int mTimePart = 5;
 
-		PointParticleEmitter particleEmitter = new PointParticleEmitter(posX,posY);
+		PointParticleEmitter particleEmitter = new PointParticleEmitter(posX,
+				posY);
 		IEntityFactory<Rectangle> recFact = new IEntityFactory<Rectangle>() {
-		    @Override
-		    public Rectangle create(float pX, float pY) {
-		        Rectangle rect = new Rectangle(posX, posY, 10, 10, activity.getVertexBufferObjectManager());
-		        final Random item = new Random();
-		        if(item.nextInt()%2==0){
-		        	rect.setColor(Color.BLUE);
-		        }		        
-		        else
-		        	rect.setColor(Color.RED);
-		        
-		        return rect;
-		    }
-		};
-		final ParticleSystem<Rectangle> particleSystem = new ParticleSystem<Rectangle>( recFact, particleEmitter, 500, 500, mNumPart);
-		
-		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Rectangle>(-25, 25, -25, -50));
+			@Override
+			public Rectangle create(float pX, float pY) {
+				Rectangle rect = new Rectangle(posX, posY, 10, 10,
+						activity.getVertexBufferObjectManager());
+				final Random item = new Random();
+				if (item.nextInt() % 2 == 0) {
+					rect.setColor(Color.BLUE);
+				} else
+					rect.setColor(Color.RED);
 
-		particleSystem.addParticleModifier(new AlphaParticleModifier<Rectangle>(0,0.6f * mTimePart, 1, 0));
-		particleSystem.addParticleModifier(new RotationParticleModifier<Rectangle>(0, mTimePart, 0, 360));
+				return rect;
+			}
+		};
+		final ParticleSystem<Rectangle> particleSystem = new ParticleSystem<Rectangle>(
+				recFact, particleEmitter, 500, 500, mNumPart);
+
+		particleSystem
+				.addParticleInitializer(new VelocityParticleInitializer<Rectangle>(
+						-25, 25, -25, -50));
+
+		particleSystem
+				.addParticleModifier(new AlphaParticleModifier<Rectangle>(0,
+						0.6f * mTimePart, 1, 0));
+		particleSystem
+				.addParticleModifier(new RotationParticleModifier<Rectangle>(0,
+						mTimePart, 0, 360));
 
 		target.attachChild(particleSystem);
-		
-		target.registerUpdateHandler(new TimerHandler(mTimePart, new ITimerCallback() {
-		    @Override
-		    public void onTimePassed(final TimerHandler pTimerHandler) {
-		        particleSystem.detachSelf();
-		        target.sortChildren();
-		        target.unregisterUpdateHandler(pTimerHandler);
-		    }
-		}));
 
+		target.registerUpdateHandler(new TimerHandler(mTimePart,
+				new ITimerCallback() {
+					@Override
+					public void onTimePassed(final TimerHandler pTimerHandler) {
+						particleSystem.detachSelf();
+						target.sortChildren();
+						target.unregisterUpdateHandler(pTimerHandler);
+					}
+				}));
 
 	}
 
