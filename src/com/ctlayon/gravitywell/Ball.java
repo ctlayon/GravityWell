@@ -55,6 +55,26 @@ public class Ball {
 		return this.ySpeed;
 	}
 
+	public float getWidth() {
+		return sprite.getWidth();
+	}
+
+	public float getHeight() {
+		return sprite.getHeight();
+	}
+
+	public float getY() {
+		return sprite.getY();
+	}
+
+	public float getX() {
+		return sprite.getX();
+	}
+
+	public IShape getSprite() {
+		return sprite;
+	}
+	
 	// ===PUBLIC FUNCTIONS FOR MOVEMENT===//
 
 	public void bounceVertical() {
@@ -101,8 +121,7 @@ public class Ball {
 			this.bounceHorizontal();
 		}
 
-		// calculate x and y distance
-		// too expensive IMO to use distance formula
+		// calculate x and y pseudo distance
 
 		float yDist = well.getY() - this.getY();
 		float xDist = well.getX() - this.getX();
@@ -120,8 +139,7 @@ public class Ball {
 
 		if (Math.abs(yDist) < 100 && Math.abs(xDist) < 100) {
 			if (this.getYSpeed() > Y_MAX_SPEED)
-				this.setSpeed(this.getXSpeed(), this.getYSpeed()
-						- Y_ACCELERATION);
+				this.setSpeed(this.getXSpeed(), this.getYSpeed() - Y_ACCELERATION);
 			if (xDist < 0) {
 				if (this.getXSpeed() > -X_MAX_SPEED)
 					this.setXSpeed(this.getXSpeed() - X_ACCELERATION);
@@ -131,28 +149,8 @@ public class Ball {
 		}
 	}
 
-	public float getWidth() {
-		return sprite.getWidth();
-	}
-
-	public float getHeight() {
-		return sprite.getHeight();
-	}
-
-	public float getY() {
-		return sprite.getY();
-	}
-
-	public float getX() {
-		return sprite.getX();
-	}
-
 	public void setPosition(int i, int j) {
 		sprite.setPosition(i, j);
-	}
-
-	public IShape getSprite() {
-		return sprite;
 	}
 
 	public boolean collidesWith(IShape sprite2) {

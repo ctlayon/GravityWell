@@ -112,61 +112,41 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 
 	// ===PRIVATE FUNCTIONS===//
 	private void initTrail() {
-		this.particleEmitter = new PointParticleEmitter(mBall.getX(),
-				mBall.getY());
-		this.particleSystem = new SpriteParticleSystem(particleEmitter, 100,
-				100, 600, this.activity.mRibbon,
+		this.particleEmitter = new PointParticleEmitter(mBall.getX(),mBall.getY());
+		this.particleSystem = new SpriteParticleSystem(particleEmitter, 100,100, 600, this.activity.mRibbon,
 				activity.getVertexBufferObjectManager());
 
-		// particleSystem.addParticleInitializer(new
-		// ColorParticleInitializer<Sprite>(1, 0, 0));
-		particleSystem
-				.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
-		particleSystem
-				.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(
-						GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
-		particleSystem
-				.addParticleInitializer(new VelocityParticleInitializer<Sprite>(
-						0));
-
-		particleSystem
-				.addParticleInitializer(new ExpireParticleInitializer<Sprite>(2));
-
-		particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0,
-				2, 1, .5f));
-		// particleSystem.addParticleModifier(new
-		// ColorParticleModifier<Sprite>(0, 5, .75f, 1, .75f, 1, .75f, 1));
-		// particleSystem.addParticleModifier(new
-		// ColorParticleModifier<Sprite>(5, 6, 1, 1, 1, .75f, 1, .75f));
-		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0,
-				2, 1, 0));
+		particleSystem.addParticleInitializer(new AlphaParticleInitializer<Sprite>(0));
+		particleSystem.addParticleInitializer(new BlendFunctionParticleInitializer<Sprite>(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE));
+		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Sprite>(0));
+		particleSystem.addParticleInitializer(new ExpireParticleInitializer<Sprite>(2));
+		particleSystem.addParticleModifier(new ScaleParticleModifier<Sprite>(0,2, 1, .5f));
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Sprite>(0,2, 1, 0));
 		this.attachChild(particleSystem);
 	}
 
 	private void checkCollisionType(Brick b) {
-		if (mBall.getX() + OFFSET > b.getX()
-				&& mBall.getX() - OFFSET < b.getX() + b.getWidth()) {
-			if (mBall.getY() + mBall.getHeight() - OFFSET < b.getY()) {
+		if ( mBall.getX() + OFFSET > b.getX()
+				&& mBall.getX() - OFFSET < b.getX() + b.getWidth() ) {
+			if ( mBall.getY() + mBall.getHeight() - OFFSET < b.getY() ) {
 				mBall.setYSpeed(-1 * Math.abs(mBall.getYSpeed()));
-			} else if (mBall.getY() + OFFSET >= b.getY() + b.getHeight()) {
-				mBall.setYSpeed(Math.abs(mBall.getYSpeed()));
+			} else if ( mBall.getY() + OFFSET >= b.getY() + b.getHeight() ) {
+				mBall.setYSpeed( Math.abs( mBall.getYSpeed() ) );
 			}
 		}
-		if (mBall.getY() + OFFSET > b.getY()
-				&& mBall.getY() - OFFSET < b.getY() + b.getHeight()) {
-			if (mBall.getX() + mBall.getWidth() - OFFSET <= b.getX()) {
+		if ( mBall.getY() + OFFSET > b.getY()
+				&& mBall.getY() - OFFSET < b.getY() + b.getHeight() ) {
+			if ( mBall.getX() + mBall.getWidth() - OFFSET <= b.getX() ) {
 				mBall.setXSpeed(-1 * Math.abs(mBall.getXSpeed()));
-			} else if (mBall.getX() + OFFSET >= b.getX() + b.getWidth()) {
-				mBall.setXSpeed(Math.abs(mBall.getXSpeed()));
+			} else if ( mBall.getX() + OFFSET >= b.getX() + b.getWidth() ) {
+				mBall.setXSpeed(Math.abs(mBall.getXSpeed()) );
 			}
 		}
 	}
 
 	private void checkRemove(Brick b, Iterator<Brick> bIt) {
 		if (!b.gotHit()) {
-			createExplosion(b.getX(), b.getY(), b.getSprite().getParent(),
-					BaseActivity.getSharedInstance());
-
+			createExplosion(b.getX(), b.getY(), b.getSprite().getParent(),BaseActivity.getSharedInstance());
 			BrickPool.sharedBrickPool().recyclePoolItem(b);
 			bIt.remove();
 		}
@@ -205,19 +185,11 @@ public class GameScene extends Scene implements IOnSceneTouchListener {
 		final ParticleSystem<Rectangle> particleSystem = new ParticleSystem<Rectangle>(
 				recFact, particleEmitter, 500, 500, mNumPart);
 
-		particleSystem
-				.addParticleInitializer(new VelocityParticleInitializer<Rectangle>(
-						-25, 25, -25, -50));
+		particleSystem.addParticleInitializer(new VelocityParticleInitializer<Rectangle>(-25, 25, -25, -50));
 
-		particleSystem
-				.addParticleModifier(new AlphaParticleModifier<Rectangle>(0,
-						0.6f * mTimePart, 1, 0));
-		particleSystem
-				.addParticleModifier(new RotationParticleModifier<Rectangle>(0,
-						mTimePart, 0, 360));
-
+		particleSystem.addParticleModifier(new AlphaParticleModifier<Rectangle>(0,0.6f * mTimePart, 1, 0));
+		particleSystem.addParticleModifier(new RotationParticleModifier<Rectangle>(0,mTimePart, 0, 360));
 		target.attachChild(particleSystem);
-
 		target.registerUpdateHandler(new TimerHandler(mTimePart,
 				new ITimerCallback() {
 					@Override

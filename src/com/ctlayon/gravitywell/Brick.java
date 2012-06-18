@@ -20,8 +20,7 @@ public class Brick {
 
 	// ===CONSTRUCTOR===//
 	public Brick() {
-		sprite = new Rectangle(0, 0, 60, 30, BaseActivity.getSharedInstance()
-				.getVertexBufferObjectManager());
+		sprite = new Rectangle(0, 0, 60, 30, BaseActivity.getSharedInstance().getVertexBufferObjectManager());
 		sprite.setColor(0f, 0f, 0f);
 		init();
 	}
@@ -46,7 +45,6 @@ public class Brick {
 
 	public boolean gotHit() {
 		synchronized (this) {
-			// if(BrickCoolDown.getSharedInstance().checkValidity())
 			hp--;
 			if (hp == 0)
 				return false;
